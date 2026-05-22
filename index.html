@@ -1324,6 +1324,7 @@
     <span><span class="kbd">SHIFT</span> + WASD correr</span>
     <span><span class="kbd">P</span> socar</span>
     <span><span class="kbd">C</span> sentar / levantar</span>
+    <span><span class="kbd">F</span> girar &nbsp;·&nbsp; <span class="kbd">K</span> orbitar &nbsp;·&nbsp; <span class="kbd">H</span>/<span class="kbd">L</span> raio</span>
     <span><span class="kbd">Clique</span> quadro → desenhar</span>
     <span><span class="kbd">Clique</span> cadeira/mesa → quebrar</span>
   </div>
@@ -2968,6 +2969,44 @@
         lastFAt = 0;
         superBlast();
       }
+    } else if (k === 'k') {
+      // K — while spinning in a chair, lock into a circular orbit around a center point.
+      // H shrinks the radius, L grows it. Press K again to release.
+      if (player && player.state === 'player_sitting' && player.target) {
+        const chair = player.target;
+        if (player._orbit && player._orbit.active) {
+          player._orbit.active = false;
+          addScore(0, 'ÓRBITA SOLTA');
+        } else if (Math.abs(chair.av) > 0.04) {
+          const r = 36;
+          const startAngle = chair.angle || 0;
+          // Place the orbit center so the chair stays put on press, then orbits outward
+          player._orbit = {
+            active: true,
+            cx: chair.x - Math.cos(startAngle) * r,
+            cy: chair.y - Math.sin(startAngle) * r,
+            r: r,
+            angle: startAngle
+          };
+          addScore(5, 'ÓRBITA!');
+        } else {
+          addScore(0, 'GIRE PRIMEIRO (F)');
+        }
+      }
+    } else if (k === 'l' || k === 'h') {
+      if (player && player._orbit && player._orbit.active) {
+        const delta = k === 'l' ? 14 : -14;
+        player._orbit.r = Math.max(0, Math.min(560, player._orbit.r + delta));
+      }
+    } else if (k === 'z') {
+      // Z — TORNADO DEVASTADOR. A 3-second vortex at the player's feet that
+      // lifts chairs, tables, and people off the floor, swirls them, and then
+      // explodes radially. 4-second cooldown.
+      const now = performance.now();
+      if (player && now - (window.__lig_lastTornadoAt || 0) > 4000) {
+        window.__lig_lastTornadoAt = now;
+        unleashTornado(player);
+      }
     } else if (k === ' ' || k === 'spacebar') {
       const now = performance.now();
       if (now - (lastHopAt || 0) > 220 && player) {
@@ -2993,7 +3032,7 @@
       }
     }
     // Stop arrow/space from scrolling the page
-    if (['w','a','s','d','p','c','f','b','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) {
+    if (['w','a','s','d','p','c','f','b','k','l','h','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) {
       e.preventDefault();
     }
   });
@@ -3341,6 +3380,7 @@
       p.state = 'player_walking';
       p.target = null;
       p._accumSpin = 0;
+      if (p._orbit) p._orbit.active = false;
       addScore(0, 'EM PÉ');
       return;
     }
@@ -3372,6 +3412,7 @@
       if (!chair || chair.broken) {
         p.state = 'player_walking';
         p.target = null;
+        if (p._orbit) p._orbit.active = false;
         return;
       }
       // WASD pumps velocity straight into the chair (chair physics keeps spinning, bouncing, etc)
@@ -3391,6 +3432,28 @@
         chair.vy += dy * accel;
         // Small torque so steering also spins the chair (chaos)
         chair.av += (dx * -Math.sin(chair.angle || 0) + dy * Math.cos(chair.angle || 0)) * 0.04;
+      }
+      // ORBIT MODE — chair revolves around a fixed center, radius controlled by H/L.
+      // Orbit speed tracks the chair's own spin so faster spin = faster orbit.
+      if (p._orbit && p._orbit.active) {
+        const spinMag = Math.max(0.05, Math.abs(chair.av));
+        const dir = chair.av >= 0 ? 1 : -1;
+        p._orbit.angle += dir * spinMag;
+        // WASD nudges the orbit CENTER (drift the whole spiral around the room)
+        if (dx || dy) {
+          const drift = running ? 3.2 : 1.8;
+          p._orbit.cx += dx * drift;
+          p._orbit.cy += dy * drift;
+        }
+        // Override chair position
+        chair.x = p._orbit.cx + Math.cos(p._orbit.angle) * p._orbit.r;
+        chair.y = p._orbit.cy + Math.sin(p._orbit.angle) * p._orbit.r;
+        // Don't let stray linear velocity fight us
+        chair.vx *= 0.4; chair.vy *= 0.4;
+        // Release orbit if the chair stops spinning
+        if (Math.abs(chair.av) < 0.025) {
+          p._orbit.active = false;
+        }
       }
       // Lock player position to chair after we've pushed it
       p.x = chair.x;
