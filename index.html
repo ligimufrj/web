@@ -212,6 +212,155 @@
     pointer-events: none;
     transition: opacity 0.2s;
   }
+
+  /* ============ GAME UI ============ */
+  #score-hud {
+    position: fixed; top: 18px; right: 18px;
+    z-index: 50;
+    background: linear-gradient(135deg, #fff5e8 0%, #f5e0c0 100%);
+    border: 3px solid #5a0e0a;
+    border-radius: 14px;
+    padding: 10px 18px 12px;
+    box-shadow: 0 6px 0 #5a0e0a, 0 12px 24px rgba(0,0,0,0.35);
+    min-width: 150px;
+    text-align: center;
+    font-family: 'Lilita One', 'Fredoka', sans-serif;
+    user-select: none;
+  }
+  .hud-label {
+    font-size: 11px; letter-spacing: 0.20em;
+    color: #5a0e0a; opacity: 0.75;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+  }
+  .hud-num {
+    font-size: 40px; font-weight: 400;
+    color: #c83a32;
+    line-height: 1; padding: 2px 0 4px;
+    text-shadow: 0 3px 0 rgba(90, 14, 10, 0.25);
+    transition: transform 0.2s;
+  }
+  .hud-num.bump { transform: scale(1.18); }
+  .hud-toast {
+    margin-top: 2px;
+    font-size: 12px;
+    font-family: 'Fredoka', sans-serif;
+    font-weight: 700;
+    color: #c83a32;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    height: 18px;
+    transition: opacity 0.35s;
+    opacity: 0;
+  }
+  .hud-toast.show { opacity: 1; }
+
+  #controls-hint {
+    position: fixed; bottom: 18px; left: 18px;
+    z-index: 50;
+    background: rgba(40, 16, 12, 0.88);
+    color: #fff5e8;
+    border: 2px solid #c83a32;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    display: flex; flex-direction: column;
+    gap: 5px;
+    box-shadow: 0 4px 0 #5a0e0a;
+    max-width: 240px;
+  }
+  #controls-hint .kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    background: #fff5f0;
+    color: #5a0e0a;
+    border-radius: 3px;
+    font-weight: 700;
+    margin-right: 6px;
+    font-size: 10px;
+    min-width: 24px;
+    text-align: center;
+  }
+
+  #wb-modal {
+    position: fixed; inset: 0;
+    background: rgba(20, 8, 4, 0.78);
+    z-index: 200;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  #wb-modal.open { display: flex; }
+  .wb-frame {
+    background: #f5f0e6;
+    border: 8px solid #3a302a;
+    border-radius: 16px;
+    padding: 14px;
+    max-width: 96vw;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+  }
+  .wb-toolbar {
+    display: flex; gap: 10px; align-items: center;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .wb-title {
+    font-family: 'Lilita One', sans-serif;
+    font-size: 20px; color: #5a0e0a;
+    margin-right: auto;
+  }
+  .wb-colors { display: flex; gap: 6px; }
+  .wb-color {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: 3px solid #3a302a;
+    cursor: pointer;
+    outline: none;
+    padding: 0;
+    transition: transform 0.15s;
+  }
+  .wb-color.active {
+    transform: scale(1.20);
+    border-color: #c83a32;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+  }
+  .wb-action {
+    background: #c83a32; color: #fff5e8;
+    border: 2px solid #5a0e0a;
+    border-radius: 6px; padding: 5px 12px;
+    font-family: 'Fredoka', sans-serif; font-weight: 600;
+    cursor: pointer; font-size: 12px;
+    box-shadow: 0 2px 0 #5a0e0a;
+  }
+  .wb-action:hover { background: #d44a40; }
+  .wb-action:active { transform: translateY(1px); box-shadow: 0 1px 0 #5a0e0a; }
+  .wb-close {
+    background: #3a302a !important;
+    font-size: 20px; padding: 0 12px;
+    line-height: 1.4;
+  }
+  #wb-canvas {
+    background: #e8f7ee;
+    border: 4px solid #3a302a;
+    border-radius: 8px;
+    display: block;
+    cursor: crosshair;
+    touch-action: none;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Player highlight ring */
+  .player-ring {
+    fill: none;
+    stroke: #f8d448;
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+    opacity: 0.85;
+    pointer-events: none;
+  }
 </style>
 </head>
 <body style="background-color: rgb(255, 255, 255)">
@@ -711,11 +860,12 @@
 
       <!-- ================= NORTH WALL FIXTURES ================= -->
       <!-- Left whiteboard with frame, shadow inside room -->
-      <g>
+      <g class="whiteboard" data-board="left" style="cursor: pointer;">
         <rect x="170" y="38" width="290" height="20" fill="#3a302a"/>
         <rect x="172" y="40" width="286" height="16" fill="url(#whiteboard-grad)" stroke="#2a5a44" stroke-width="0.6"/>
         <rect x="175" y="43" width="280" height="11" fill="#ebf6ef" opacity="0.7"/>
-        <text x="280" y="50" font-family="JetBrains Mono, monospace" font-size="6" fill="#3a8a64" opacity="0.75">f(x) = ax² + bx + c</text>
+        <image id="wb-img-left" x="175" y="43" width="280" height="11" preserveAspectRatio="none" pointer-events="none"/>
+        <text x="280" y="50" font-family="JetBrains Mono, monospace" font-size="6" fill="#3a8a64" opacity="0.75" pointer-events="none">f(x) = ax² + bx + c</text>
         <!-- markers tray (lower edge, on inside of wall) -->
         <rect x="170" y="58" width="290" height="3" fill="#4a3a2a"/>
         <rect x="180" y="59" width="14" height="2" fill="#c0473e"/>
@@ -741,11 +891,12 @@
       </g>
 
       <!-- Right whiteboard -->
-      <g>
+      <g class="whiteboard" data-board="right" style="cursor: pointer;">
         <rect x="940" y="38" width="290" height="20" fill="#3a302a"/>
         <rect x="942" y="40" width="286" height="16" fill="url(#whiteboard-grad)" stroke="#2a5a44" stroke-width="0.6"/>
         <rect x="945" y="43" width="280" height="11" fill="#ebf6ef" opacity="0.7"/>
-        <text x="1050" y="50" font-family="JetBrains Mono, monospace" font-size="6" fill="#3a8a64" opacity="0.75">∫ e^x dx = e^x + C</text>
+        <image id="wb-img-right" x="945" y="43" width="280" height="11" preserveAspectRatio="none" pointer-events="none"/>
+        <text x="1050" y="50" font-family="JetBrains Mono, monospace" font-size="6" fill="#3a8a64" opacity="0.75" pointer-events="none">∫ e^x dx = e^x + C</text>
         <rect x="940" y="58" width="290" height="3" fill="#4a3a2a"/>
         <rect x="950" y="59" width="14" height="2" fill="#3a6cb5"/>
         <rect x="970" y="59" width="14" height="2" fill="#2a2a2a"/>
@@ -1093,6 +1244,9 @@
       <!-- Loose foam (sprayed on the floor) -->
       <g id="foam-floor"></g>
 
+      <!-- People walking around and sitting on chairs -->
+      <g id="characters"></g>
+
       <!-- Fire extinguisher (draggable) -->
       <g id="extinguisher" class="extinguisher" data-base-x="1290" data-base-y="290" transform="translate(1290, 290)" style="cursor: grab;">
         <!-- floor shadow -->
@@ -1154,7 +1308,43 @@
   </div>
 
   <div class="physics-hint">
-    Passe o cursor entre as cadeiras &nbsp;·&nbsp; <span class="kbd">→ rápido</span> empurra forte &nbsp;·&nbsp; <span class="kbd">→ muito rápido</span> derruba &nbsp;·&nbsp; <span class="kbd">R</span> reorganiza
+    Personagens entram pelas portas e sentam &nbsp;·&nbsp; <span class="kbd">Cursor</span> empurra cadeiras e pessoas &nbsp;·&nbsp; <span class="kbd">R</span> reorganiza
+  </div>
+
+  <!-- Score HUD -->
+  <div id="score-hud" aria-live="polite">
+    <div class="hud-label">PONTOS</div>
+    <div class="hud-num" id="hud-score-num">0</div>
+    <div class="hud-toast" id="hud-toast"></div>
+  </div>
+
+  <!-- Controls hint -->
+  <div id="controls-hint">
+    <span><span class="kbd">WASD</span> andar</span>
+    <span><span class="kbd">SHIFT</span> + WASD correr</span>
+    <span><span class="kbd">P</span> socar</span>
+    <span><span class="kbd">C</span> sentar / levantar</span>
+    <span><span class="kbd">Clique</span> quadro → desenhar</span>
+    <span><span class="kbd">Clique</span> cadeira/mesa → quebrar</span>
+  </div>
+
+  <!-- Whiteboard popup -->
+  <div id="wb-modal" aria-hidden="true">
+    <div class="wb-frame">
+      <div class="wb-toolbar">
+        <span class="wb-title">Quadro Branco</span>
+        <div class="wb-colors">
+          <button class="wb-color active" data-color="#1a1a1a" style="background:#1a1a1a"></button>
+          <button class="wb-color" data-color="#c0473e" style="background:#c0473e"></button>
+          <button class="wb-color" data-color="#3a6cb5" style="background:#3a6cb5"></button>
+          <button class="wb-color" data-color="#3a8a52" style="background:#3a8a52"></button>
+        </div>
+        <button class="wb-action" id="wb-eraser">Borracha</button>
+        <button class="wb-action" id="wb-clear">Limpar</button>
+        <button class="wb-action wb-close" id="wb-close" aria-label="Fechar">×</button>
+      </div>
+      <canvas id="wb-canvas" width="900" height="540"></canvas>
+    </div>
   </div>
 
   <div class="legend">
@@ -1352,10 +1542,16 @@
   const svgEl = document.querySelector('svg.room');
 
   const obstacles = [
+    // top wall (no door)
     { x1: 0, y1: 0, x2: 1400, y2: 62 },
-    { x1: 0, y1: 1338, x2: 1400, y2: 1400 },
+    // bottom wall — split around south door opening (x=850..990)
+    { x1: 0, y1: 1338, x2: 848, y2: 1400 },
+    { x1: 992, y1: 1338, x2: 1400, y2: 1400 },
+    // left wall (no door)
     { x1: 0, y1: 0, x2: 62, y2: 1400 },
-    { x1: 1338, y1: 0, x2: 1400, y2: 1400 },
+    // right wall — split around east door opening (y=1100..1260)
+    { x1: 1338, y1: 0, x2: 1400, y2: 1098 },
+    { x1: 1338, y1: 1262, x2: 1400, y2: 1400 },
     { x1: 38, y1: 1088, x2: 470, y2: 1366 },
     { x1: 162, y1: 92, x2: 468, y2: 208 },
     ...pods.map(p => ({ x1: p.cx-118, y1: p.cy-88, x2: p.cx+118, y2: p.cy+92 }))
@@ -1369,9 +1565,90 @@
       x: baseX, y: baseY,
       vx: 0, vy: 0, angle: 0, av: 0,
       tipped: false, tipPhase: 0, tipDir: 1, tipTimer: 0,
+      broken: false,
       _homing: false
     };
   });
+
+  // ---- Break-on-click for chairs ----
+  function breakChair(c) {
+    if (c.broken) return;
+    c.broken = true;
+    c.tipped = false;
+    c.tipPhase = 0;
+    c.el.classList.remove('tipped');
+    c.el.classList.add('broken');
+    // Kick out anyone sitting in it
+    if (c._occupiedBy) {
+      const occ = c._occupiedBy;
+      if (occ.isPlayer) {
+        // Player gets dumped on the floor — unsit them
+        occ.state = 'player_walking';
+        occ.target = null;
+      } else {
+        occ.state = 'walking_out';
+        occ.exitTarget = { x: occ.door.x, y: occ.door.y };
+        occ._passedDoor = false;
+        occ._stuckTimer = 0;
+      }
+      c._occupiedBy = null;
+    }
+    const r1 = () => (Math.random() * 2 - 1);
+    const seatOff = `translate(${(r1()*10).toFixed(1)}, ${(-6 + r1()*4).toFixed(1)}) rotate(${(r1()*40).toFixed(1)})`;
+    const backOff = `translate(${(r1()*22).toFixed(1)}, ${(14 + r1()*10).toFixed(1)}) rotate(${(r1()*140).toFixed(1)})`;
+    c.el.innerHTML = `
+      <!-- floor shadow -->
+      <ellipse cx="1" cy="3" rx="30" ry="22" fill="rgba(0,0,0,0.42)"/>
+      <!-- snapped base — a few wheels scattered -->
+      <g><ellipse cx="-16" cy="-12" rx="3.5" ry="2.8" fill="#1a1612"/><ellipse cx="-16" cy="-12" rx="2" ry="1.4" fill="#3a3530"/></g>
+      <g><ellipse cx="18" cy="-4" rx="3.5" ry="2.8" fill="#1a1612"/><ellipse cx="18" cy="-4" rx="2" ry="1.4" fill="#3a3530"/></g>
+      <g><ellipse cx="-4" cy="22" rx="3.5" ry="2.8" fill="#1a1612"/><ellipse cx="-4" cy="22" rx="2" ry="1.4" fill="#3a3530"/></g>
+      <!-- broken gas cylinder stub -->
+      <circle r="6" fill="url(#leg-grad)" stroke="#000" stroke-width="0.4"/>
+      <circle r="3.5" fill="#0a0806"/>
+      <!-- seat tilted on its side, half-detached -->
+      <g transform="${seatOff}">
+        <ellipse cx="0" cy="0" rx="19" ry="14" fill="url(#seat-grad)" stroke="#08152e" stroke-width="0.7"/>
+        <path d="M -10 -3 Q 4 1, 14 9" stroke="rgba(0,0,0,0.5)" stroke-width="1.2" fill="none"/>
+        <path d="M 6 -8 L 10 4 L 2 6 Z" fill="rgba(0,0,0,0.4)"/>
+      </g>
+      <!-- backrest detached, lying off to the side -->
+      <g transform="${backOff}">
+        <path d="M -16 -6 Q -19 -10, 0 -12 Q 19 -10, 16 -6 L 14 -1 Q 0 -5, -14 -1 Z" fill="url(#seat-back-grad)" stroke="#08152e" stroke-width="0.55"/>
+        <path d="M -12 -4 L 4 0" stroke="rgba(0,0,0,0.5)" stroke-width="0.8"/>
+      </g>
+      <!-- screws / bolts -->
+      <circle cx="${(r1()*22).toFixed(1)}" cy="${(r1()*22).toFixed(1)}" r="1.2" fill="#3a3530"/>
+      <circle cx="${(r1()*22).toFixed(1)}" cy="${(r1()*22).toFixed(1)}" r="1.2" fill="#3a3530"/>
+      <circle cx="${(r1()*22).toFixed(1)}" cy="${(r1()*22).toFixed(1)}" r="1.0" fill="#5a5040"/>
+    `;
+    // dampen velocity — broken chairs still slide but don't bounce back
+    c.vx *= 0.4; c.vy *= 0.4; c.av = 0;
+    if (window.__lig_onChairBreak) window.__lig_onChairBreak(c);
+  }
+
+  // Attach click-to-break to every chair (initial + future ones)
+  function attachChairBreak(el, c) {
+    let dx0 = 0, dy0 = 0, down = false;
+    el.style.cursor = 'pointer';
+    const start = (x, y) => { dx0 = x; dy0 = y; down = true; };
+    const end = (x, y) => {
+      if (down && Math.hypot(x - dx0, y - dy0) < 6) breakChair(c);
+      down = false;
+    };
+    el.addEventListener('mousedown', e => { e.stopPropagation(); start(e.clientX, e.clientY); });
+    el.addEventListener('mouseup', e => { e.stopPropagation(); end(e.clientX, e.clientY); });
+    el.addEventListener('mouseleave', () => { down = false; });
+    el.addEventListener('touchstart', e => {
+      if (!e.touches[0]) return;
+      start(e.touches[0].clientX, e.touches[0].clientY);
+    }, { passive: true });
+    el.addEventListener('touchend', e => {
+      const t = e.changedTouches[0]; if (!t) { down = false; return; }
+      end(t.clientX, t.clientY);
+    });
+  }
+  chairs.forEach(c => attachChairBreak(c.el, c));
 
   let mx = -9999, my = -9999, pmx = -9999, pmy = -9999;
   let mvx = 0, mvy = 0, mouseInside = false;
@@ -1416,6 +1693,12 @@
       c.tipPhase = 0;
       c.el.classList.remove('tipped');
       c._homing = true;
+      // Repair broken chairs on reset
+      if (c.broken) {
+        c.broken = false;
+        c.el.classList.remove('broken');
+        c.el.innerHTML = '<use href="#office-chair"/>';
+      }
     });
   }
 
@@ -1465,6 +1748,18 @@
   }
 
   function tick() {
+    // Keep table (pod) collision hitboxes in sync with their actual positions —
+    // tables now move freely, so the original spots shouldn't keep blocking.
+    if (window.__lig_pods) {
+      for (let i = 0; i < window.__lig_pods.length; i++) {
+        const p = window.__lig_pods[i];
+        const o = obstacles[8 + i]; // pods start at index 8 in obstacles[]
+        if (o) {
+          o.x1 = p.x - 118; o.y1 = p.y - 88;
+          o.x2 = p.x + 118; o.y2 = p.y + 92;
+        }
+      }
+    }
     const mouseSpeed = Math.sqrt(mvx*mvx + mvy*mvy);
     for (const c of chairs) {
       // Auto-recover after being tipped for a couple of seconds
@@ -1514,17 +1809,7 @@
             if (!c.tipped) {
               const torque = ((-dx) * mvy - (-dy) * mvx) / (dist + 1);
               c.av += torque * 0.0035;
-              const impactSpeed = mouseSpeed * proximity;
-              if (impactSpeed > 13) {
-                if (Math.random() < (impactSpeed - 13) * 0.10) {
-                  c.tipped = true;
-                  c.tipTimer = 0;
-                  c.tipDir = Math.sign(torque) || (Math.random() < 0.5 ? -1 : 1);
-                  c.el.classList.add('tipped');
-                  c.vx *= 1.5; c.vy *= 1.5;
-                  c.av += c.tipDir * 0.4;
-                }
-              }
+              // Tipping disabled — chairs never tip over, no matter how hard they are pushed
             } else {
               // Poking a tipped chair refreshes its down-time so it doesn't right immediately mid-shove
               if (mouseSpeed > 4) c.tipTimer = Math.max(0, c.tipTimer - 8);
@@ -1532,17 +1817,17 @@
           }
         }
       }
-      const damp = c.tipped ? 0.91 : 0.935;
-      c.vx *= damp; c.vy *= damp; c.av *= 0.93;
+      const damp = c.tipped ? 0.91 : 0.955;
+      c.vx *= damp; c.vy *= damp; c.av *= 0.955;
       if (Math.abs(c.vx) < 0.02) c.vx = 0;
       if (Math.abs(c.vy) < 0.02) c.vy = 0;
       if (Math.abs(c.av) < 0.001) c.av = 0;
       // velocity cap (prevents tunneling through walls)
       const vMag = Math.sqrt(c.vx*c.vx + c.vy*c.vy);
-      const vMax = 22;
+      const vMax = 40;
       if (vMag > vMax) { c.vx = c.vx/vMag*vMax; c.vy = c.vy/vMag*vMax; }
-      if (c.av > 0.6) c.av = 0.6;
-      if (c.av < -0.6) c.av = -0.6;
+      if (c.av > 1.4) c.av = 1.4;
+      if (c.av < -1.4) c.av = -1.4;
       // integrate with sub-steps for high speeds to prevent tunneling
       const steps = Math.max(1, Math.ceil(vMag / 8));
       for (let s = 0; s < steps; s++) {
@@ -1611,7 +1896,14 @@
 
   function endDrag() {
     if (dragging) {
-      try { dragging.obj.el.style.cursor = 'grab'; } catch(_) {}
+      const d = dragging;
+      try { d.obj.el.style.cursor = 'grab'; } catch(_) {}
+      // Click detection: if the object barely moved between mousedown and now,
+      // treat the gesture as a click and fire the type's onClick (if any).
+      if (d.onClick) {
+        const moved = Math.hypot((d.obj.x ?? 0) - d.startObjX, (d.obj.y ?? 0) - d.startObjY);
+        if (moved < 6) d.onClick(d.obj);
+      }
     }
     dragging = null;
   }
@@ -1619,12 +1911,18 @@
   window.addEventListener('touchend', endDrag);
   window.addEventListener('touchcancel', endDrag);
 
-  function attachDrag(el, getObj, getType) {
+  function attachDrag(el, getObj, getType, onClick) {
     function start(clientX, clientY, e) {
       e.stopPropagation(); e.preventDefault();
       const pt = clientToSvg(clientX, clientY);
       const obj = getObj();
-      dragging = { type: getType(), obj };
+      dragging = {
+        type: getType(),
+        obj,
+        onClick,
+        startObjX: obj.x,
+        startObjY: obj.y
+      };
       dragOffset.x = pt.x - obj.x;
       dragOffset.y = pt.y - obj.y;
       el.style.cursor = 'grabbing';
@@ -1699,61 +1997,31 @@
     attachDrag(extinguisher.el, () => extinguisher, () => 'extinguisher');
   }
 
-  function makeFoamBlob(localX, localY) {
-    const g = document.createElementNS(svgNS, 'g');
-    g.setAttribute('transform', `translate(${localX}, ${localY}) rotate(${Math.random() * 360})`);
-    g.setAttribute('class', 'foam-blob');
-    g.setAttribute('pointer-events', 'none');
-    let html = `<ellipse cx="1.5" cy="2" rx="10" ry="7" fill="rgba(0,0,0,0.18)"/>`;
-    const n = 5 + Math.floor(Math.random() * 5);
-    for (let i = 0; i < n; i++) {
-      const cx = (Math.random() - 0.5) * 16;
-      const cy = (Math.random() - 0.5) * 12;
-      const r = 2 + Math.random() * 4.5;
-      html += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="#fafaf2" stroke="#d4d0c0" stroke-width="0.4" opacity="0.95"/>`;
-    }
-    for (let i = 0; i < 3; i++) {
-      const cx = (Math.random() - 0.5) * 11;
-      const cy = (Math.random() - 0.5) * 8;
-      html += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${(1 + Math.random()*1.5).toFixed(1)}" fill="rgba(255,255,255,0.95)"/>`;
-    }
-    g.innerHTML = html;
-    return g;
+  // Soft white "foam" — ONE ellipse per blob, capped, no per-blob random circles
+  const FOAM_CAP = 90;
+  function makeFoamBlob(worldX, worldY) {
+    const el = document.createElementNS(svgNS, 'ellipse');
+    el.setAttribute('cx', worldX.toFixed(1));
+    el.setAttribute('cy', worldY.toFixed(1));
+    el.setAttribute('rx', (9 + Math.random() * 7).toFixed(1));
+    el.setAttribute('ry', (6 + Math.random() * 5).toFixed(1));
+    el.setAttribute('fill', '#fafaf2');
+    el.setAttribute('stroke', '#d8d4c4');
+    el.setAttribute('stroke-width', '0.5');
+    el.setAttribute('opacity', '0.94');
+    el.setAttribute('pointer-events', 'none');
+    return el;
   }
 
   function spawnFoamAt(worldX, worldY) {
-    // Find target: a .chair or .pod under (worldX, worldY) (or extinguisher itself — skip)
-    const pt = svg.createSVGPoint();
-    pt.x = worldX; pt.y = worldY;
-    const ctm = svg.getScreenCTM();
-    if (!ctm) return;
-    const screen = pt.matrixTransform(ctm);
-    const els = document.elementsFromPoint(screen.x, screen.y);
-    let target = null;
-    for (const e of els) {
-      let n = e;
-      while (n && n !== svg) {
-        if (n === extEl) { break; }
-        if (n.classList && (n.classList.contains('chair') || n.classList.contains('pod'))) {
-          target = n; break;
-        }
-        n = n.parentNode;
-      }
-      if (target) break;
+    // Always drop foam on the floor layer — keeps the node count bounded
+    // (no elementsFromPoint hit-test, no per-frame reparenting work).
+    const blob = makeFoamBlob(worldX, worldY);
+    foamFloor.appendChild(blob);
+    // Cap total foam elements so the room can't slow to a crawl
+    while (foamFloor.childNodes.length > FOAM_CAP) {
+      foamFloor.removeChild(foamFloor.firstChild);
     }
-    let foam;
-    if (target) {
-      // Compute coords in target's local frame
-      const tCtm = target.getCTM();
-      if (tCtm) {
-        const local = pt.matrixTransform(tCtm.inverse());
-        foam = makeFoamBlob(local.x, local.y);
-        target.appendChild(foam);
-        return;
-      }
-    }
-    foam = makeFoamBlob(worldX, worldY);
-    foamFloor.appendChild(foam);
   }
 
   // ============== PODS (TABLES) ==============
@@ -1763,10 +2031,41 @@
     baseX: parseFloat(el.dataset.baseX),
     baseY: parseFloat(el.dataset.baseY),
     x: parseFloat(el.dataset.baseX),
-    y: parseFloat(el.dataset.baseY)
+    y: parseFloat(el.dataset.baseY),
+    vx: 0, vy: 0, angle: 0, av: 0
   }));
+  // Expose pods so the player (in a different IIFE) can punch them flying
+  window.__lig_pods = podObjects;
+  // ============== POD BREAK ==============
+  function breakPod(pod) {
+    if (pod.broken) return;
+    pod.broken = true;
+    const wsList = [...pod.el.querySelectorAll('.workstation')];
+    wsList.forEach(ws => detachWorkstation(ws));
+    const dmg = document.createElementNS(svgNS, 'g');
+    dmg.setAttribute('class', 'pod-damage');
+    dmg.setAttribute('pointer-events', 'none');
+    const r1 = () => (Math.random() * 2 - 1);
+    dmg.innerHTML = `
+      <rect x="-112" y="-82" width="224" height="170" fill="rgba(40,18,10,0.32)" rx="3"/>
+      <path d="M -100 -55 L -20 -10 L 60 20 L 90 70" stroke="#2a1810" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <path d="M -80 60 L -10 30 L 40 -30 L 100 -60" stroke="#2a1810" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+      <path d="M 0 -75 L 5 -10 L -5 30 L 0 85" stroke="#2a1810" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M -30 -20 L -22 -28 L -28 -32 Z" fill="#3a2a1a" opacity="0.9"/>
+      <path d="M 40 30 L 48 22 L 52 30 Z" fill="#3a2a1a" opacity="0.9"/>
+      <path d="M -50 50 L -42 45 L -44 55 Z" fill="#3a2a1a" opacity="0.9"/>
+      <!-- shattered splinters around the desk -->
+      <g transform="translate(${(r1()*40)|0}, ${(r1()*50)|0}) rotate(${(r1()*180)|0})"><path d="M -8 0 L 0 -2 L 8 0 L 0 2 Z" fill="#3a2a1a" stroke="#1a1208" stroke-width="0.3"/></g>
+      <g transform="translate(${(r1()*60)|0}, ${(r1()*50)|0}) rotate(${(r1()*180)|0})"><path d="M -6 0 L 0 -2 L 6 0 L 0 2 Z" fill="#5a3a1a" stroke="#1a1208" stroke-width="0.3"/></g>
+      <ellipse cx="-30" cy="0" rx="14" ry="8" fill="rgba(0,0,0,0.20)"/>
+      <ellipse cx="40" cy="20" rx="10" ry="6" fill="rgba(0,0,0,0.20)"/>
+    `;
+    pod.el.appendChild(dmg);
+    if (window.__lig_onPodBreak) window.__lig_onPodBreak(pod);
+  }
+
   podObjects.forEach(pod => {
-    attachDrag(pod.el, () => pod, () => 'pod');
+    attachDrag(pod.el, () => pod, () => 'pod', breakPod);
   });
 
   function detachWorkstation(ws) {
@@ -1869,7 +2168,7 @@
       bin.el.setAttribute('transform', `translate(${bin.x}, ${bin.y})`);
     }
 
-    // Pods (tables)
+    // Pods (tables) — physics integration even when not dragged
     for (const pod of podObjects) {
       if (dragging && dragging.type === 'pod' && dragging.obj === pod) {
         const targetX = mx - dragOffset.x;
@@ -1879,6 +2178,7 @@
         const speed = Math.sqrt(dxm*dxm + dym*dym);
         pod.x = Math.max(160, Math.min(1240, targetX));
         pod.y = Math.max(160, Math.min(1240, targetY));
+        pod.vx = dxm * 0.6; pod.vy = dym * 0.6;
         // Knock off workstations based on speed
         if (speed > 4.5) {
           const stillOn = pod.el.querySelectorAll('.workstation');
@@ -1886,6 +2186,31 @@
           stillOn.forEach(ws => {
             if (Math.random() < chance) detachWorkstation(ws);
           });
+        }
+      } else {
+        // Free physics — integrate velocity, bounce off walls, lose stuff fast
+        const vMag = Math.hypot(pod.vx, pod.vy);
+        if (vMag > 0.05) {
+          pod.x += pod.vx; pod.y += pod.vy;
+          pod.angle += pod.av;
+          // Wall bounce
+          if (pod.x < 160) { pod.x = 160; pod.vx = Math.abs(pod.vx) * 0.6; pod.av += (Math.random()-0.5)*0.04; }
+          if (pod.x > 1240) { pod.x = 1240; pod.vx = -Math.abs(pod.vx) * 0.6; pod.av += (Math.random()-0.5)*0.04; }
+          if (pod.y < 160) { pod.y = 160; pod.vy = Math.abs(pod.vy) * 0.6; pod.av += (Math.random()-0.5)*0.04; }
+          if (pod.y > 1240) { pod.y = 1240; pod.vy = -Math.abs(pod.vy) * 0.6; pod.av += (Math.random()-0.5)*0.04; }
+          // Knock off workstations while sliding fast
+          if (vMag > 6) {
+            const stillOn = pod.el.querySelectorAll('.workstation');
+            const chance = Math.min(0.6, (vMag - 6) * 0.05);
+            stillOn.forEach(ws => {
+              if (Math.random() < chance) detachWorkstation(ws);
+            });
+          }
+          // Damping (mass is heavy — tables don't stop instantly)
+          pod.vx *= 0.94; pod.vy *= 0.94; pod.av *= 0.96;
+          if (Math.abs(pod.vx) < 0.04) pod.vx = 0;
+          if (Math.abs(pod.vy) < 0.04) pod.vy = 0;
+          if (Math.abs(pod.av) < 0.0008) pod.av = 0;
         }
       }
     }
@@ -1936,7 +2261,7 @@
     }
     // Apply pod transforms (after collision resolution)
     for (const pod of podObjects) {
-      pod.el.setAttribute('transform', `translate(${pod.x}, ${pod.y})`);
+      pod.el.setAttribute('transform', `translate(${pod.x}, ${pod.y}) rotate(${(pod.angle * 180 / Math.PI).toFixed(2)})`);
     }
 
     // Extinguisher
@@ -1951,20 +2276,14 @@
         // spawn foam at nozzle while moving (or just by being held)
         const speed = Math.sqrt(dxm*dxm + dym*dym);
         const traveled = Math.hypot(extinguisher.x - extinguisher.lastFoamX, extinguisher.y - extinguisher.lastFoamY);
-        const shouldSpawn = traveled > 10 || (speed > 0.5 && Math.random() < 0.45);
+        const shouldSpawn = traveled > 18 || (speed > 1.2 && Math.random() < 0.18);
         if (shouldSpawn) {
-          // Nozzle is at (28,14) offset from center → roughly. But the nozzle direction
-          // depends on extinguisher orientation; we keep no rotation, so foam emits to bottom-right.
-          // Spawn 1-3 foam blobs in a small spray cone toward bottom-right of the extinguisher
-          const sprayN = 1 + Math.floor(Math.random() * 3);
-          for (let i = 0; i < sprayN; i++) {
-            // Direction with some randomness
-            const baseAng = Math.PI * 0.30 + (Math.random() - 0.5) * 0.7;
-            const dist = 28 + Math.random() * 22;
-            const fx = extinguisher.x + Math.cos(baseAng) * dist;
-            const fy = extinguisher.y + Math.sin(baseAng) * dist;
-            spawnFoamAt(fx, fy);
-          }
+          // Single foam blob per emit — cheap, no per-blob inner circles
+          const baseAng = Math.PI * 0.30 + (Math.random() - 0.5) * 0.7;
+          const dist = 28 + Math.random() * 22;
+          const fx = extinguisher.x + Math.cos(baseAng) * dist;
+          const fy = extinguisher.y + Math.sin(baseAng) * dist;
+          spawnFoamAt(fx, fy);
           extinguisher.lastFoamX = extinguisher.x;
           extinguisher.lastFoamY = extinguisher.y;
         }
@@ -1976,6 +2295,1060 @@
     requestAnimationFrame(tick);
   }
   tick();
+})();
+</script>
+
+<script>
+// ===================================================================
+// CHARACTERS — top-down people walk in from doors, sit on chairs,
+// can be pushed by the cursor either while walking or while seated
+// (pushing a seated character's chair drags the chair + the person).
+// ===================================================================
+(function() {
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.querySelector('svg.room');
+  const charactersGroup = document.getElementById('characters');
+
+  // --- Variety palettes ---
+  const SKIN = ['#f5d4ad','#eec197','#dca887','#c08e6a','#9a6a48','#704a30','#4e2f1c'];
+  const HAIR = ['#1a120a','#2a1810','#3a2410','#5a3416','#7a5028','#a47038','#cf9a4a','#e8c878','#3a3a3a','#181818','#c83a32','#5a3a8a'];
+  const SHIRT = [
+    '#c83a32','#3a6cb5','#3a8a52','#f0c842','#7a4ab8','#e87a3a',
+    '#1c1c1c','#f5f0e6','#2a8a8a','#d44a8a','#5a3018','#4a78d0',
+    '#b8d44a','#ff8a5c','#5a5a6a','#a8e0ec'
+  ];
+  // T-shirt graphic styles
+  const SHIRT_STYLES = ['plain','plain','stripe','vneck','stripe2','pocket','plain','contrast','logo','zip'];
+  // Pants / trouser colors
+  const PANTS = ['#1a1a22','#28241c','#3a2f20','#1c2a4a','#2a3a52','#404040','#5a3a24','#2a4438'];
+
+  // Door spawn/exit configuration
+  const doorSpawns = [
+    // South door — spawn just inside the opening, walk up into the room
+    { x: 920, y: 1392, insideX: 920, insideY: 1290, side: 'south' },
+    // East door — spawn just inside the opening, walk west into the room
+    { x: 1392, y: 1180, insideX: 1290, insideY: 1180, side: 'east' }
+  ];
+
+  // We rely on globals from the first physics script:
+  //   chairs       (array of chair objects with {el, x, y, vx, vy, baseX, baseY, angle, _homing})
+  //   obstacles    (array of axis-aligned rectangles)
+  // These were declared as top-level `const` in the same document so they
+  // resolve via the shared script lexical scope.
+
+  const characters = [];
+  const MAX_CHARS = 6;
+  let spawnTimer = 60;
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function rnd(a, b) { return a + Math.random() * (b - a); }
+
+  function buildBodySvg(opts) {
+    // True top-down: hair dominates, shoulders + arms wrap down/forward, hands
+    // meet near the belly, tiny feet peek out front. No visible face from above
+    // — only ear hints and (sometimes) a nose nub.
+    const { skin, hair, shirt, hairStyle, shirtStyle, shirtAccent, noseScale, pantsColor } = opts;
+
+    // ---- Hair / hat that covers the top of the head (radius 11 at (0,-5)) ----
+    let hairSvg = '';
+    if (hairStyle === 'short') {
+      hairSvg = `<path d="M -11 -5 Q -13 -16, 0 -17 Q 13 -16, 11 -5 Q 8 -2, 0 -2 Q -8 -2, -11 -5 Z" fill="${hair}"/>`;
+    } else if (hairStyle === 'long') {
+      // Long hair: top of head + drape trailing behind (-y direction)
+      hairSvg = `<path d="M -12 -3 Q -14 -16, 0 -17.5 Q 14 -16, 12 -3 Q 18 -22, 6 -30 Q 0 -32, -6 -30 Q -18 -22, -12 -3 Z" fill="${hair}"/>`;
+    } else if (hairStyle === 'bun') {
+      hairSvg = `<path d="M -11 -5 Q -13 -16, 0 -17 Q 13 -16, 11 -5 Z" fill="${hair}"/><circle cx="0" cy="-16" r="4.5" fill="${hair}"/><circle cx="0" cy="-16" r="2.2" fill="rgba(0,0,0,0.30)"/>`;
+    } else if (hairStyle === 'curly') {
+      hairSvg = `
+        <circle cx="-9" cy="-9" r="5.2" fill="${hair}"/>
+        <circle cx="-3" cy="-13" r="5.6" fill="${hair}"/>
+        <circle cx="4" cy="-13" r="5.6" fill="${hair}"/>
+        <circle cx="10" cy="-9" r="5.2" fill="${hair}"/>
+        <circle cx="0" cy="-7" r="5" fill="${hair}"/>
+        <circle cx="-6" cy="-4" r="3.5" fill="${hair}"/>
+        <circle cx="6" cy="-4" r="3.5" fill="${hair}"/>
+      `;
+    } else if (hairStyle === 'beanie') {
+      hairSvg = `<path d="M -12 -4 Q -13 -17, 0 -18 Q 13 -17, 12 -4 Z" fill="${hair}"/><rect x="-12" y="-5" width="24" height="3" fill="rgba(0,0,0,0.32)"/><circle cx="0" cy="-17.5" r="2.2" fill="${hair}" opacity="0.95"/>`;
+    } else if (hairStyle === 'cap') {
+      // Baseball cap from above — dome covers most of the head, brim sticks out
+      // toward the face/forward direction (+y in local)
+      hairSvg = `<path d="M -11 3 Q -12 -17, 0 -18 Q 12 -17, 11 3 Z" fill="${hair}"/>` +
+               `<ellipse cx="0" cy="7" rx="10" ry="3.5" fill="${hair}"/>` +
+               `<ellipse cx="0" cy="7" rx="10" ry="3.5" fill="rgba(0,0,0,0.22)"/>`;
+    } else if (hairStyle === 'ponytail') {
+      // Ponytail trails BEHIND the head (-y direction)
+      hairSvg = `<path d="M -11 -5 Q -13 -16, 0 -17 Q 13 -16, 11 -5 Z" fill="${hair}"/>` +
+               `<path d="M -2.8 -17 Q -3.5 -22, -2 -27 Q 0 -28, 2 -27 Q 3.5 -22, 2.8 -17 Z" fill="${hair}"/>`;
+    } else if (hairStyle === 'mohawk') {
+      hairSvg = `<ellipse cx="0" cy="-9" rx="3.5" ry="9" fill="${hair}"/><ellipse cx="-7" cy="-5" rx="3" ry="4" fill="${hair}" opacity="0.85"/><ellipse cx="7" cy="-5" rx="3" ry="4" fill="${hair}" opacity="0.85"/>`;
+    } else if (hairStyle === 'buzz') {
+      hairSvg = `<ellipse cx="0" cy="-7" rx="11" ry="8" fill="${hair}" opacity="0.75"/>`;
+    } else {
+      // bald — just a soft halo
+      hairSvg = `<ellipse cx="0" cy="-10" rx="10" ry="3.2" fill="${hair}" opacity="0.55"/>`;
+    }
+
+    // ---- Shirt deco visible between the arms (small wedge) ----
+    let shirtDeco = '';
+    if (shirtStyle === 'stripe') {
+      shirtDeco = `<path d="M -5 1 L 5 1" stroke="${shirtAccent}" stroke-width="1.4" opacity="0.85"/><path d="M -5 5 L 5 5" stroke="${shirtAccent}" stroke-width="1.4" opacity="0.85"/>`;
+    } else if (shirtStyle === 'stripe2') {
+      shirtDeco = `<rect x="-6" y="3" width="12" height="1.6" fill="${shirtAccent}" opacity="0.9"/><rect x="-6" y="7" width="12" height="1.6" fill="${shirtAccent}" opacity="0.9"/>`;
+    } else if (shirtStyle === 'vneck') {
+      shirtDeco = `<path d="M -3 -1 L 0 3 L 3 -1" stroke="rgba(0,0,0,0.45)" stroke-width="1.1" fill="none"/>`;
+    } else if (shirtStyle === 'pocket') {
+      shirtDeco = `<rect x="-4" y="1" width="3.5" height="4" fill="none" stroke="rgba(0,0,0,0.4)" stroke-width="0.5"/>`;
+    } else if (shirtStyle === 'contrast') {
+      shirtDeco = `<path d="M -7 7 L 7 7 L 6 11 L -6 11 Z" fill="${shirtAccent}" opacity="0.95"/>`;
+    } else if (shirtStyle === 'logo') {
+      shirtDeco = `<circle cx="0" cy="4" r="2.2" fill="${shirtAccent}" opacity="0.9"/>`;
+    } else if (shirtStyle === 'zip') {
+      shirtDeco = `<line x1="0" y1="-1" x2="0" y2="10" stroke="rgba(0,0,0,0.55)" stroke-width="0.7"/>`;
+    }
+
+    const ns = noseScale || 1;
+    const pants = pantsColor || '#28241c';
+
+    // Local coords: -y is the character's forward direction.
+    // Layout from back-to-front in z-order so things visible from above stack right.
+    // The whole body (everything but the floor shadow) goes inside <g class="body-lift"> so we
+    // can pop it upward independently of the shadow when hopping.
+    return `
+      <!-- floor shadow — stays glued to the ground -->
+      <ellipse class="body-shadow" cx="1.5" cy="8" rx="15" ry="10" fill="rgba(0,0,0,0.40)"/>
+      <g class="body-lift">
+
+      <!-- feet peeking forward (will animate up/down with gait) -->
+      <ellipse class="foot-l" cx="-3.5" cy="14" rx="2.4" ry="3.2" fill="#1a1410" stroke="#000" stroke-width="0.35"/>
+      <ellipse class="foot-r" cx="3.5"  cy="14" rx="2.4" ry="3.2" fill="#1a1410" stroke="#000" stroke-width="0.35"/>
+
+      <!-- pants/trouser hint visible between feet -->
+      <path d="M -5 9 L 5 9 L 4 13 L -4 13 Z" fill="${pants}" stroke="rgba(0,0,0,0.4)" stroke-width="0.5"/>
+
+      <!-- shirt body — just the strip visible between the arms -->
+      <path d="M -7 -2 Q 0 -3, 7 -2 L 6 11 Q 0 12.5, -6 11 Z" fill="${shirt}" stroke="rgba(0,0,0,0.45)" stroke-width="0.6"/>
+      ${shirtDeco}
+
+      <!-- ARMS — sleeves curving outward then down/forward (shirt-colored sleeves + skin hands) -->
+      <path class="arm-l" d="M -7 -2 Q -14 1, -13 5 Q -11 9, -8 11.5" stroke="${shirt}" stroke-width="6.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="arm-r" d="M 7 -2 Q 14 1, 13 5 Q 11 9, 8 11.5" stroke="${shirt}" stroke-width="6.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- arm outlines for definition -->
+      <path d="M -7 -2 Q -14 1, -13 5 Q -11 9, -8 11.5" stroke="rgba(0,0,0,0.45)" stroke-width="0.5" fill="none" stroke-linecap="round"/>
+      <path d="M 7 -2 Q 14 1, 13 5 Q 11 9, 8 11.5" stroke="rgba(0,0,0,0.45)" stroke-width="0.5" fill="none" stroke-linecap="round"/>
+      <!-- hands -->
+      <circle class="hand-l" cx="-8" cy="11.5" r="3" fill="${skin}" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+      <circle class="hand-r" cx="8"  cy="11.5" r="3" fill="${skin}" stroke="rgba(0,0,0,0.5)" stroke-width="0.5"/>
+
+      <!-- HEAD — mostly covered by hair from above -->
+      <circle cx="0" cy="-5" r="11" fill="${skin}" stroke="rgba(0,0,0,0.55)" stroke-width="0.7"/>
+
+      <!-- ear hints peeking from the sides of the head -->
+      <ellipse cx="-10.6" cy="-4" rx="1.6" ry="2.3" fill="${skin}" stroke="rgba(0,0,0,0.55)" stroke-width="0.45"/>
+      <ellipse cx="10.6"  cy="-4" rx="1.6" ry="2.3" fill="${skin}" stroke="rgba(0,0,0,0.55)" stroke-width="0.45"/>
+
+      <!-- hair / hat covering top of head -->
+      ${hairSvg}
+
+      ${hairStyle === 'curly' ? `
+      <!-- EYES — only on curly-haired characters -->
+      <ellipse cx="-3.6" cy="0.5" rx="1.9" ry="1.3" fill="#fbf8ef" stroke="rgba(0,0,0,0.55)" stroke-width="0.35"/>
+      <ellipse cx="3.6"  cy="0.5" rx="1.9" ry="1.3" fill="#fbf8ef" stroke="rgba(0,0,0,0.55)" stroke-width="0.35"/>
+      <circle cx="-3.6" cy="0.5" r="0.85" fill="#0a0608"/>
+      <circle cx="3.6"  cy="0.5" r="0.85" fill="#0a0608"/>
+      ` : ''}
+
+      <!-- tiny nose nub barely peeking forward off the head -->
+      <ellipse cx="0" cy="4.6" rx="${(1.4 * ns).toFixed(2)}" ry="${(1.0 * ns).toFixed(2)}" fill="${skin}" stroke="rgba(0,0,0,0.4)" stroke-width="0.3" opacity="0.95"/>
+      </g>
+    `;
+  }
+
+  function findFreeChair() {
+    const candidates = chairs.filter(c => !c._occupiedBy && !c._homing);
+    if (candidates.length === 0) return null;
+    return pick(candidates);
+  }
+
+  function shirtAccentFor(c) {
+    // pick a high-contrast accent — either white or black depending on lightness
+    // quick lightness from hex
+    const r = parseInt(c.slice(1, 3), 16);
+    const g = parseInt(c.slice(3, 5), 16);
+    const b = parseInt(c.slice(5, 7), 16);
+    const lum = 0.299*r + 0.587*g + 0.114*b;
+    return lum > 140 ? '#1a1a1a' : '#f5f0e6';
+  }
+
+  function createCharacter() {
+    const target = findFreeChair();
+    if (!target) return;
+
+    const door = pick(doorSpawns);
+    // Big enough to read clearly from above
+    const sizeScale = rnd(1.25, 1.85);
+    const skin = pick(SKIN);
+    const hair = pick(HAIR);
+    const shirt = pick(SHIRT);
+    const shirtStyle = pick(SHIRT_STYLES);
+    const hairStyle = pick(['short','long','bun','curly','beanie','cap','ponytail','mohawk','buzz','short','long','curly','cap','beanie']);
+    const noseScale = rnd(0.7, 1.6);
+    const pantsColor = pick(PANTS);
+    const speed = rnd(1.0, 2.3);
+    const gaitAmp = rnd(0.20, 0.65);
+    const gaitFreq = rnd(0.18, 0.34);
+    const swayAmp = rnd(0.06, 0.22);
+
+    const ch = {
+      x: door.x, y: door.y,
+      vx: 0, vy: 0,
+      heading: door.side === 'south' ? -Math.PI/2 : Math.PI,
+      sizeScale, skin, hair, shirt,
+      speed, gaitAmp, gaitFreq, swayAmp,
+      gaitPhase: Math.random() * Math.PI * 2,
+      hairStyle, shirtStyle,
+      state: 'walking_in',
+      target,
+      door,
+      sitTimer: 0,
+      sitDuration: 60 * rnd(10, 22),
+      _passedDoor: false,
+      _stuckTimer: 0,
+      _lastPos: { x: door.x, y: door.y },
+      el: null
+    };
+
+    target._occupiedBy = ch;
+
+    const g = document.createElementNS(svgNS, 'g');
+    g.setAttribute('class', 'character');
+    g.style.opacity = '0';
+    g.innerHTML = buildBodySvg({
+      skin, hair, shirt, hairStyle, shirtStyle,
+      shirtAccent: shirtAccentFor(shirt),
+      noseScale, pantsColor
+    });
+    charactersGroup.appendChild(g);
+    ch.el = g;
+    requestAnimationFrame(() => {
+      g.style.transition = 'opacity 0.45s';
+      g.style.opacity = '1';
+    });
+
+    characters.push(ch);
+  }
+
+  // --- Mouse state (independent of other scripts) ---
+  let mx = -9999, my = -9999, pmx = -9999, pmy = -9999, mvx = 0, mvy = 0;
+  let mouseInside = false, mouseDown = false;
+  function clientToSvg(cx, cy) {
+    const pt = svg.createSVGPoint();
+    pt.x = cx; pt.y = cy;
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return { x: -9999, y: -9999 };
+    return pt.matrixTransform(ctm.inverse());
+  }
+  svg.addEventListener('mousemove', (e) => {
+    const pt = clientToSvg(e.clientX, e.clientY);
+    pmx = mx; pmy = my;
+    mx = pt.x; my = pt.y;
+    if (pmx < -9000) { pmx = mx; pmy = my; }
+    mvx = mx - pmx; mvy = my - pmy;
+    mouseInside = true;
+  });
+  svg.addEventListener('mouseleave', () => { mouseInside = false; mvx = 0; mvy = 0; });
+  svg.addEventListener('mousedown', () => { mouseDown = true; });
+  window.addEventListener('mouseup', () => { mouseDown = false; });
+  svg.addEventListener('touchmove', (e) => {
+    if (!e.touches[0]) return;
+    const t = e.touches[0];
+    const pt = clientToSvg(t.clientX, t.clientY);
+    pmx = mx; pmy = my;
+    mx = pt.x; my = pt.y;
+    if (pmx < -9000) { pmx = mx; pmy = my; }
+    mvx = mx - pmx; mvy = my - pmy;
+    mouseInside = true;
+  }, { passive: true });
+  svg.addEventListener('touchstart', () => { mouseDown = true; }, { passive: true });
+  window.addEventListener('touchend', () => { mouseDown = false; });
+
+  function resolveCharCollisions(ch) {
+    const r = 11 * ch.sizeScale;
+    // Walls + pods + alcove
+    for (const o of obstacles) {
+      const cx = Math.max(o.x1, Math.min(ch.x, o.x2));
+      const cy = Math.max(o.y1, Math.min(ch.y, o.y2));
+      const dx = ch.x - cx, dy = ch.y - cy;
+      const d2 = dx*dx + dy*dy;
+      if (d2 < r*r) {
+        const d = Math.sqrt(d2) || 0.01;
+        const nx = dx/d, ny = dy/d;
+        const overlap = r - d;
+        ch.x += nx * overlap;
+        ch.y += ny * overlap;
+        const vn = ch.vx*nx + ch.vy*ny;
+        if (vn < 0) {
+          ch.vx -= 1.1 * vn * nx;
+          ch.vy -= 1.1 * vn * ny;
+          ch.vx *= 0.7;
+          ch.vy *= 0.7;
+        }
+      }
+    }
+    // Chairs — characters can shove chairs out of the way (except their own target while approaching)
+    for (const chair of chairs) {
+      if (ch.state === 'walking_in' && chair === ch.target) continue;
+      if (ch.state === 'sitting' && chair === ch.target) continue;
+      const dx = ch.x - chair.x, dy = ch.y - chair.y;
+      const minD = 24 + 8 * ch.sizeScale;
+      const d2 = dx*dx + dy*dy;
+      if (d2 < minD*minD && d2 > 0.0001) {
+        const d = Math.sqrt(d2);
+        const nx = dx/d, ny = dy/d;
+        const overlap = (minD - d) * 0.5;
+        ch.x += nx * overlap * 0.6;
+        ch.y += ny * overlap * 0.6;
+        chair.x -= nx * overlap * 1.4;
+        chair.y -= ny * overlap * 1.4;
+        // Transfer some momentum to the chair (so it rolls away)
+        chair.vx -= nx * (Math.abs(ch.vx) + Math.abs(ch.vy)) * 0.35;
+        chair.vy -= ny * (Math.abs(ch.vx) + Math.abs(ch.vy)) * 0.35;
+      }
+    }
+    // Soft character-character separation
+    for (const other of characters) {
+      if (other === ch) continue;
+      if (other.state === 'sitting' || ch.state === 'sitting') continue;
+      const dx = ch.x - other.x, dy = ch.y - other.y;
+      const minD = 18 * ((ch.sizeScale + other.sizeScale) / 2);
+      const d2 = dx*dx + dy*dy;
+      if (d2 < minD*minD && d2 > 0.0001) {
+        const d = Math.sqrt(d2);
+        const nx = dx/d, ny = dy/d;
+        const overlap = (minD - d) * 0.5;
+        ch.x += nx * overlap; ch.y += ny * overlap;
+        other.x -= nx * overlap; other.y -= ny * overlap;
+      }
+    }
+  }
+
+  function tick() {
+    // Spawn new character periodically (if there is a free chair and room)
+    spawnTimer--;
+    if (spawnTimer <= 0) {
+      const liveCount = characters.filter(c => c.state !== 'removed').length;
+      if (liveCount < MAX_CHARS) {
+        createCharacter();
+      }
+      spawnTimer = 60 + Math.random() * 220;
+    }
+
+    const mouseSpeed = Math.sqrt(mvx*mvx + mvy*mvy);
+
+    for (let i = characters.length - 1; i >= 0; i--) {
+      const ch = characters[i];
+      if (ch.state === 'removed') { characters.splice(i, 1); continue; }
+
+      // --- Cursor push: applies in all live states ---
+      if (mouseInside && !ch.isPlayer) {
+        const dx = ch.x - mx, dy = ch.y - my;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        const radius = 60 * ch.sizeScale;
+        if (dist < radius && dist > 0.5) {
+          const nx = dx/dist, ny = dy/dist;
+          const proximity = (radius - dist) / radius;
+          if (ch.state === 'sitting') {
+            // Pushing a seated character pushes the chair (and they ride along)
+            const chair = ch.target;
+            if (chair) {
+              // tiny constant nudge
+              chair.vx += nx * proximity * 0.10;
+              chair.vy += ny * proximity * 0.10;
+              if (mouseSpeed > 0.8) {
+                const push = mouseSpeed * proximity * 0.42;
+                chair.vx += nx * push;
+                chair.vy += ny * push;
+              }
+            }
+          } else {
+            ch.vx += nx * proximity * 0.22;
+            ch.vy += ny * proximity * 0.22;
+            if (mouseSpeed > 0.8) {
+              const push = mouseSpeed * proximity * 0.55;
+              ch.vx += nx * push;
+              ch.vy += ny * push;
+              // Push also disrupts walking heading briefly
+              ch._lastPush = 8;
+            }
+          }
+        }
+      }
+
+      // --- State machine ---
+      if (ch.isPlayer) {
+        updatePlayer(ch);
+      } else if (ch.state === 'walking_in') {
+        const chair = ch.target;
+        if (!chair) {
+          ch.state = 'walking_out';
+          ch.exitTarget = { x: ch.door.x, y: ch.door.y };
+        } else {
+          // Two-stage waypoint: first push past the door entry, then go to the chair
+          let tx, ty;
+          const distInside = Math.hypot(ch.x - ch.door.insideX, ch.y - ch.door.insideY);
+          if (!ch._passedDoor && distInside > 30) {
+            tx = ch.door.insideX;
+            ty = ch.door.insideY;
+          } else {
+            ch._passedDoor = true;
+            tx = chair.x;
+            ty = chair.y;
+          }
+          const dx = tx - ch.x, dy = ty - ch.y;
+          const d = Math.hypot(dx, dy);
+          if (d > 1) {
+            const nx = dx/d, ny = dy/d;
+            const accel = ch.speed * 0.18;
+            ch.vx += nx * accel;
+            ch.vy += ny * accel;
+            if (!ch._lastPush || ch._lastPush <= 0) {
+              ch.heading = Math.atan2(dy, dx);
+            }
+          }
+          // Reached chair → sit
+          const distToTarget = Math.hypot(ch.x - chair.x, ch.y - chair.y);
+          if (distToTarget < 7) {
+            ch.state = 'sitting';
+            ch.vx = 0; ch.vy = 0;
+            ch.sitTimer = 0;
+          }
+          // Stuck detection — random jiggle to break out
+          const moved = Math.hypot(ch.x - ch._lastPos.x, ch.y - ch._lastPos.y);
+          if (moved < 0.4) {
+            ch._stuckTimer++;
+            if (ch._stuckTimer > 90) {
+              ch.vx += (Math.random() - 0.5) * 4;
+              ch.vy += (Math.random() - 0.5) * 4;
+              ch._stuckTimer = 0;
+            }
+          } else {
+            ch._stuckTimer = 0;
+          }
+          ch._lastPos.x = ch.x; ch._lastPos.y = ch.y;
+        }
+      } else if (ch.state === 'sitting') {
+        const chair = ch.target;
+        if (chair) {
+          // Lock to chair — character rides whatever happens to the chair
+          ch.x = chair.x;
+          ch.y = chair.y - 1;
+          ch.heading = (chair.angle || 0) + Math.PI/2;
+          // Subtle idle gait so they "breathe"
+          ch.gaitPhase += 0.03;
+        }
+        ch.sitTimer++;
+        if (ch.sitTimer > ch.sitDuration) {
+          ch.state = 'walking_out';
+          if (chair) chair._occupiedBy = null;
+          ch.exitTarget = { x: ch.door.x, y: ch.door.y };
+          ch._passedDoor = false;
+          ch._stuckTimer = 0;
+        }
+      } else if (ch.state === 'walking_out') {
+        const tx = ch.exitTarget.x, ty = ch.exitTarget.y;
+        const dx = tx - ch.x, dy = ty - ch.y;
+        const d = Math.hypot(dx, dy);
+        if (d > 1) {
+          const nx = dx/d, ny = dy/d;
+          const accel = ch.speed * 0.18;
+          ch.vx += nx * accel;
+          ch.vy += ny * accel;
+          if (!ch._lastPush || ch._lastPush <= 0) {
+            ch.heading = Math.atan2(dy, dx);
+          }
+        }
+        // Once at the door, keep walking through it and off-stage before removal
+        if (d < 18 && !ch._exiting) {
+          ch._exiting = true;
+          // Push past the door into the wall area
+          ch.exitTarget = ch.door.side === 'south'
+            ? { x: ch.door.x, y: 1430 }
+            : { x: 1430, y: ch.door.y };
+        } else if (ch._exiting && (ch.x > 1410 || ch.x < -10 || ch.y > 1410 || ch.y < -10)) {
+          ch.state = 'removed';
+          if (ch.el) {
+            ch.el.style.transition = 'opacity 0.4s';
+            ch.el.style.opacity = '0';
+            const el = ch.el;
+            setTimeout(() => el.remove(), 500);
+          }
+        }
+        // Stuck check
+        const moved = Math.hypot(ch.x - ch._lastPos.x, ch.y - ch._lastPos.y);
+        if (moved < 0.4) {
+          ch._stuckTimer++;
+          if (ch._stuckTimer > 90) {
+            ch.vx += (Math.random() - 0.5) * 4;
+            ch.vy += (Math.random() - 0.5) * 4;
+            ch._stuckTimer = 0;
+          }
+        } else {
+          ch._stuckTimer = 0;
+        }
+        ch._lastPos.x = ch.x; ch._lastPos.y = ch.y;
+      }
+
+      if (ch._lastPush) ch._lastPush--;
+
+      // --- Integrate movement (skip when sitting — chair locks position) ---
+      if (ch.state !== 'sitting' && ch.state !== 'player_sitting') {
+        const vMag0 = Math.hypot(ch.vx, ch.vy);
+        const vMax = ch.isPlayer ? (ch._running ? 9 : 5) : ch.speed * 2.6;
+        // No cap when stunned (so punches really fling them across the room)
+        if (vMag0 > vMax && !ch._stunned) {
+          ch.vx = ch.vx/vMag0 * vMax;
+          ch.vy = ch.vy/vMag0 * vMax;
+        }
+        // Looser damping when a character is flying from a punch — slide further
+        let damp;
+        if (ch.isPlayer) damp = 0.78;
+        else if (ch._stunned) damp = 0.965;
+        else if (vMag0 > 8) damp = 0.93;
+        else damp = 0.84;
+        ch.vx *= damp;
+        ch.vy *= damp;
+        if (ch._stunned) ch._stunned--;
+        // Tumble spin decays
+        if (ch.tumbleSpin) {
+          ch.tumbleSpin *= 0.97;
+          if (Math.abs(ch.tumbleSpin) < 0.005) ch.tumbleSpin = 0;
+        }
+        // Hop integration for AI too (player handles its own)
+        if (!ch.isPlayer && ((ch.hopVel || 0) !== 0 || (ch.hopOffset || 0) < 0)) {
+          ch.hopOffset = (ch.hopOffset || 0) + (ch.hopVel || 0);
+          ch.hopVel = (ch.hopVel || 0) + 0.45;
+          if (ch.hopOffset >= 0) { ch.hopOffset = 0; ch.hopVel = 0; }
+        }
+        if (Math.abs(ch.vx) < 0.02) ch.vx = 0;
+        if (Math.abs(ch.vy) < 0.02) ch.vy = 0;
+        const vMag = Math.hypot(ch.vx, ch.vy);
+        const steps = Math.max(1, Math.ceil(vMag / 5));
+        for (let s = 0; s < steps; s++) {
+          ch.x += ch.vx / steps;
+          ch.y += ch.vy / steps;
+          resolveCharCollisions(ch);
+        }
+        // Walking gait advances with motion
+        if (vMag > 0.25) ch.gaitPhase += ch.gaitFreq * Math.min(1.6, vMag * 0.45);
+      }
+
+      // --- Render ---
+      if (ch.el) {
+        const isWalking = (ch.state !== 'sitting' && ch.state !== 'player_sitting') && Math.hypot(ch.vx, ch.vy) > 0.3;
+        // Body bob — small forward/back along heading + lateral sway
+        const bob = isWalking ? Math.sin(ch.gaitPhase * 2) * ch.gaitAmp * 0.4 : 0;
+        const sway = isWalking ? Math.sin(ch.gaitPhase) * ch.swayAmp * 4 : 0;
+        const cosH = Math.cos(ch.heading);
+        const sinH = Math.sin(ch.heading);
+        // sway perpendicular to heading
+        const sx = -sinH * sway;
+        const sy = cosH * sway;
+        const tumble = (ch.tumbleSpin || 0) * 30; // big visual rotation when sent flying
+        // Spin tumble continues each frame (we already decay tumbleSpin in physics)
+        ch._tumbleAngle = (ch._tumbleAngle || 0) + tumble;
+        // Flip orientation so the FACE / arms lead the heading direction
+        // (local +y is the front of the body; we want it to align with the heading)
+        const angleDeg = (ch.heading * 180 / Math.PI) - 90 + (ch._tumbleAngle || 0);
+        const hopY = ch.hopOffset || 0;
+        // Arm swing — animate hands/arms slightly
+        if (isWalking) {
+          const armSwing = Math.sin(ch.gaitPhase) * 1.8;
+          const legSwing = Math.sin(ch.gaitPhase) * 2.8;
+          const aL = ch.el.querySelector('.arm-l');
+          const aR = ch.el.querySelector('.arm-r');
+          const hL = ch.el.querySelector('.hand-l');
+          const hR = ch.el.querySelector('.hand-r');
+          const fL = ch.el.querySelector('.foot-l');
+          const fR = ch.el.querySelector('.foot-r');
+          // Slight forward/back drift of arms (translate the whole path subtly)
+          if (aL) aL.setAttribute('transform', `translate(0, ${armSwing.toFixed(2)})`);
+          if (aR) aR.setAttribute('transform', `translate(0, ${(-armSwing).toFixed(2)})`);
+          if (hL) hL.setAttribute('cy', (11.5 + armSwing * 1.3).toFixed(2));
+          if (hR) hR.setAttribute('cy', (11.5 - armSwing * 1.3).toFixed(2));
+          // Feet step opposite their same-side arm — natural gait
+          if (fL) fL.setAttribute('cy', (14 - legSwing).toFixed(2));
+          if (fR) fR.setAttribute('cy', (14 + legSwing).toFixed(2));
+        }
+        ch.el.setAttribute(
+          'transform',
+          `translate(${(ch.x + sx + bob * cosH).toFixed(2)}, ${(ch.y + sy + bob * sinH).toFixed(2)}) rotate(${angleDeg.toFixed(2)}) scale(${ch.sizeScale.toFixed(3)})`
+        );
+        // Hop: lift body off the ground, shrink shadow
+        const lift = ch.el.querySelector('.body-lift');
+        const shadow = ch.el.querySelector('.body-shadow');
+        if (lift) lift.setAttribute('transform', hopY ? `translate(0, ${hopY.toFixed(2)})` : '');
+        if (shadow) {
+          const k = Math.max(0.4, 1 + hopY * 0.04); // hopY is negative when up
+          shadow.setAttribute('opacity', 0.40 * k);
+          shadow.setAttribute('rx', (15 * k).toFixed(2));
+          shadow.setAttribute('ry', (10 * k).toFixed(2));
+        }
+      }
+    }
+
+    mvx *= 0.55; mvy *= 0.55;
+    requestAnimationFrame(tick);
+  }
+
+  // ===================================================================
+  // SCORE / HUD
+  // ===================================================================
+  let score = 0;
+  const hudNum = document.getElementById('hud-score-num');
+  const hudToast = document.getElementById('hud-toast');
+  let toastTimer = 0;
+  function addScore(amount, message) {
+    score += amount;
+    if (hudNum) {
+      hudNum.textContent = score;
+      hudNum.classList.add('bump');
+      setTimeout(() => hudNum.classList.remove('bump'), 200);
+    }
+    if (hudToast && message) {
+      hudToast.textContent = `+${amount} · ${message}`;
+      hudToast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => hudToast.classList.remove('show'), 1400);
+    }
+  }
+  window.__lig_onChairBreak = () => addScore(20, 'CADEIRA QUEBRADA');
+  window.__lig_onPodBreak   = () => addScore(50, 'MESA QUEBRADA');
+
+  // ===================================================================
+  // PLAYER
+  // ===================================================================
+  const keys = new Set();
+  let lastSitToggle = 0, lastPunchAt = 0, lastHopAt = 0;
+  window.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    keys.add(k);
+    // Single-press actions (debounced)
+    if (k === 'p') {
+      const now = performance.now();
+      if (now - lastPunchAt > 350 && player) {
+        lastPunchAt = now;
+        executePunch(player);
+      }
+    } else if (k === 'c') {
+      const now = performance.now();
+      if (now - lastSitToggle > 350 && player) {
+        lastSitToggle = now;
+        toggleSit(player);
+      }
+    } else if (k === ' ' || k === 'spacebar') {
+      // HOP / skip
+      const now = performance.now();
+      if (now - (lastHopAt || 0) > 220 && player && player.state !== 'player_sitting') {
+        lastHopAt = now;
+        const peak = player._running ? -22 : -14;
+        player.hopOffset = peak;
+        player.hopVel = -3.2;
+        const cosH = Math.cos(player.heading), sinH = Math.sin(player.heading);
+        player.vx += cosH * (player._running ? 5 : 3);
+        player.vy += sinH * (player._running ? 5 : 3);
+      }
+    }
+    // Stop arrow/space from scrolling the page
+    if (['w','a','s','d','p','c','arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) {
+      e.preventDefault();
+    }
+  });
+  window.addEventListener('keyup', (e) => { keys.delete(e.key.toLowerCase()); });
+
+  const punchFxLayer = document.getElementById('characters');
+  function spawnPunchFx(wx, wy) {
+    const g = document.createElementNS(svgNS, 'g');
+    g.setAttribute('transform', `translate(${wx}, ${wy})`);
+    g.setAttribute('pointer-events', 'none');
+    g.innerHTML = `
+      <circle r="0" fill="none" stroke="#fff5e8" stroke-width="3"/>
+      <circle r="0" fill="none" stroke="#f8d448" stroke-width="2"/>
+      <text x="0" y="-22" text-anchor="middle" font-family="Lilita One, sans-serif" font-size="14" fill="#fff5e8" stroke="#5a0e0a" stroke-width="1.2" paint-order="stroke">POW!</text>
+    `;
+    punchFxLayer.appendChild(g);
+    const c1 = g.children[0], c2 = g.children[1], t = g.children[2];
+    let r = 0, alpha = 1;
+    function step() {
+      r += 2.6; alpha -= 0.05;
+      if (c1) { c1.setAttribute('r', r); c1.setAttribute('opacity', alpha); }
+      if (c2) { c2.setAttribute('r', r * 0.7); c2.setAttribute('opacity', alpha); }
+      if (t)  { t.setAttribute('opacity', alpha); t.setAttribute('y', -22 - (1 - alpha) * 20); }
+      if (alpha > 0) requestAnimationFrame(step);
+      else g.remove();
+    }
+    requestAnimationFrame(step);
+  }
+
+  function executePunch(p) {
+    if (p.state === 'player_sitting') return;
+    p._punchTimer = 14;
+    const cosH = Math.cos(p.heading), sinH = Math.sin(p.heading);
+    const reach = 50 * p.sizeScale;
+    const tx = p.x + cosH * reach;
+    const ty = p.y + sinH * reach;
+    const power = p._running ? 1.8 : 1.0;
+    let hits = 0;
+    // — Characters —
+    for (const other of characters) {
+      if (other === p || other.state === 'removed') continue;
+      const dx = other.x - tx, dy = other.y - ty;
+      if (dx*dx + dy*dy < (32 * other.sizeScale) * (32 * other.sizeScale)) {
+        const ax = other.x - p.x, ay = other.y - p.y;
+        const ad = Math.hypot(ax, ay) || 1;
+        const launch = 55 * power;
+        other.vx += (ax/ad) * launch + (Math.random()-0.5) * 8;
+        other.vy += (ay/ad) * launch + (Math.random()-0.5) * 8;
+        other.tumbleSpin = (Math.random() < 0.5 ? -1 : 1) * (0.55 + Math.random() * 0.55) * power;
+        other.hopOffset = -18 * power;
+        other.hopVel = -2.2 * power;
+        other._stunned = 70;
+        if (other.state === 'sitting' && other.target) {
+          other.target._occupiedBy = null;
+          other.state = 'walking_out';
+          other.exitTarget = { x: other.door.x, y: other.door.y };
+          other._passedDoor = false;
+          other._stuckTimer = 0;
+        }
+        hits++;
+      }
+    }
+    // — Chairs in punch range fly too —
+    for (const c of chairs) {
+      const dx = c.x - tx, dy = c.y - ty;
+      if (dx*dx + dy*dy < 50*50) {
+        const ax = c.x - p.x, ay = c.y - p.y;
+        const ad = Math.hypot(ax, ay) || 1;
+        const launch = 28 * power;
+        c.vx += (ax/ad) * launch;
+        c.vy += (ay/ad) * launch;
+        c.av += (Math.random()-0.5) * 0.6 * power;
+      }
+    }
+    // — Tables — punching sends them flying (with rotation!) —
+    if (window.__lig_pods) {
+      for (const pod of window.__lig_pods) {
+        const dx = pod.x - tx, dy = pod.y - ty;
+        if (dx*dx + dy*dy < 130*130) {
+          const ax = pod.x - p.x, ay = pod.y - p.y;
+          const ad = Math.hypot(ax, ay) || 1;
+          const launch = 14 * power;
+          pod.vx += (ax/ad) * launch;
+          pod.vy += (ay/ad) * launch;
+          pod.av += (Math.random()-0.5) * 0.18 * power;
+          addScore(15, 'MESA VOOU');
+        }
+      }
+    }
+    spawnPunchFx(tx, ty);
+    if (hits > 0) {
+      addScore(10 * hits * (p._running ? 2 : 1), hits > 1 ? `SOCO MÚLTIPLO ×${hits}` : (p._running ? 'SOCO VOADOR' : 'SOCO!'));
+    }
+  }
+
+  function findChairInFront(p) {
+    const cosH = Math.cos(p.heading), sinH = Math.sin(p.heading);
+    const fx = p.x + cosH * 35;
+    const fy = p.y + sinH * 35;
+    let best = null, bestD = 50 * 50;
+    for (const c of chairs) {
+      if (c.broken || c._occupiedBy) continue;
+      const dx = c.x - fx, dy = c.y - fy;
+      const d2 = dx*dx + dy*dy;
+      if (d2 < bestD) { bestD = d2; best = c; }
+    }
+    return best;
+  }
+
+  function toggleSit(p) {
+    if (p.state === 'player_sitting') {
+      // Get up
+      if (p.target) p.target._occupiedBy = null;
+      p.state = 'player_walking';
+      p.target = null;
+      p._accumSpin = 0;
+      addScore(0, 'EM PÉ');
+      return;
+    }
+    const chair = findChairInFront(p);
+    if (!chair) {
+      // No chair near — show miss
+      if (hudToast) {
+        hudToast.textContent = '— nenhuma cadeira à frente';
+        hudToast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => hudToast.classList.remove('show'), 1200);
+      }
+      return;
+    }
+    p.target = chair;
+    chair._occupiedBy = p;
+    p.state = 'player_sitting';
+    p.vx = 0; p.vy = 0;
+    p._lastChairAngle = chair.angle;
+    p._accumSpin = 0;
+    addScore(0, 'SENTOU');
+  }
+
+  function updatePlayer(p) {
+    // Sitting state — lock to chair, track spin scoring, still listen for inputs
+    if (p.state === 'player_sitting') {
+      const chair = p.target;
+      if (!chair || chair.broken) {
+        p.state = 'player_walking';
+        p.target = null;
+        return;
+      }
+      p.x = chair.x;
+      p.y = chair.y - 1;
+      p.heading = (chair.angle || 0) + Math.PI / 2;
+      p.gaitPhase += 0.03;
+      // Track chair rotation for score
+      const da = chair.angle - (p._lastChairAngle ?? chair.angle);
+      // Wrap around the discontinuity
+      let wrapped = da;
+      while (wrapped > Math.PI)  wrapped -= 2 * Math.PI;
+      while (wrapped < -Math.PI) wrapped += 2 * Math.PI;
+      p._accumSpin = (p._accumSpin || 0) + Math.abs(wrapped);
+      while (p._accumSpin > Math.PI * 2) {
+        p._accumSpin -= Math.PI * 2;
+        const now = performance.now();
+        if (now - (p._lastSpinAt || 0) < 1800) {
+          p._spinCombo = (p._spinCombo || 1) + 1;
+        } else {
+          p._spinCombo = 1;
+        }
+        p._lastSpinAt = now;
+        const pts = 5 * p._spinCombo;
+        addScore(pts, p._spinCombo > 1 ? `GIROU ×${p._spinCombo}` : 'GIROU NA CADEIRA');
+      }
+      p._lastChairAngle = chair.angle;
+      return;
+    }
+
+    // Walking state — read held keys
+    let dx = 0, dy = 0;
+    if (keys.has('w') || keys.has('arrowup'))    dy -= 1;
+    if (keys.has('s') || keys.has('arrowdown'))  dy += 1;
+    if (keys.has('a') || keys.has('arrowleft'))  dx -= 1;
+    if (keys.has('d') || keys.has('arrowright')) dx += 1;
+    const running = keys.has('shift');
+    p._running = running;
+
+    if (dx || dy) {
+      const len = Math.hypot(dx, dy);
+      dx /= len; dy /= len;
+      const accel = running ? 2.4 : 1.2;
+      p.vx += dx * accel;
+      p.vy += dy * accel;
+      p.heading = Math.atan2(dy, dx);
+      // Auto-skip while running — little hop every few steps
+      p._stepPhase = (p._stepPhase || 0) + (running ? 0.32 : 0.20);
+      if (running && Math.sin(p._stepPhase) > 0.97 && (p.hopOffset || 0) > -3) {
+        p.hopOffset = -6; p.hopVel = -0.9;
+      }
+    }
+    if (p._punchTimer > 0) p._punchTimer--;
+
+    // Hop integration — simple ballistic offset (negative = up)
+    if ((p.hopVel || 0) !== 0 || (p.hopOffset || 0) < 0) {
+      p.hopOffset = (p.hopOffset || 0) + (p.hopVel || 0);
+      p.hopVel = (p.hopVel || 0) + 0.55;
+      if (p.hopOffset >= 0) { p.hopOffset = 0; p.hopVel = 0; }
+    }
+  }
+
+  function createPlayer() {
+    const skin = pick(SKIN);
+    const ch = {
+      x: 700, y: 720,
+      vx: 0, vy: 0,
+      heading: -Math.PI / 2, // facing up (north)
+      sizeScale: 1.7,
+      skin,
+      hair: '#3a6cb5',          // blue cap
+      shirt: '#f0c842',         // bright yellow — stands out
+      speed: 2.5,
+      gaitAmp: 0.5,
+      gaitFreq: 0.32,
+      swayAmp: 0.18,
+      gaitPhase: 0,
+      hairStyle: 'cap',
+      shirtStyle: 'logo',
+      state: 'player_walking',
+      target: null,
+      door: doorSpawns[0],
+      sitTimer: 0,
+      sitDuration: Infinity,
+      _passedDoor: true,
+      _stuckTimer: 0,
+      _lastPos: { x: 700, y: 720 },
+      _punchTimer: 0,
+      _running: false,
+      isPlayer: true,
+      el: null
+    };
+    const g = document.createElementNS(svgNS, 'g');
+    g.setAttribute('class', 'character player');
+    // Add a marker ring under the player so it's easy to find
+    g.innerHTML =
+      `<circle class="player-ring" r="22"/>` +
+      buildBodySvg({
+        skin, hair: ch.hair, shirt: ch.shirt,
+        hairStyle: ch.hairStyle, shirtStyle: ch.shirtStyle,
+        shirtAccent: '#ffffff',
+        noseScale: 1.0, pantsColor: '#1c2a4a'
+      });
+    charactersGroup.appendChild(g);
+    ch.el = g;
+    characters.push(ch);
+    return ch;
+  }
+  const player = createPlayer();
+
+  // ===================================================================
+  // WHITEBOARD POPUP
+  // ===================================================================
+  const wbModal = document.getElementById('wb-modal');
+  const wbCanvas = document.getElementById('wb-canvas');
+  const wbCtx = wbCanvas ? wbCanvas.getContext('2d') : null;
+  let wbColor = '#1a1a1a';
+  let wbErasing = false;
+  let wbCurrentBoard = null;
+  const wbStore = { left: null, right: null }; // saved data URLs
+
+  function openWhiteboard(boardId) {
+    if (!wbModal || !wbCtx) return;
+    wbCurrentBoard = boardId;
+    // Restore canvas
+    wbCtx.fillStyle = '#e8f7ee';
+    wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+    if (wbStore[boardId]) {
+      const img = new Image();
+      img.onload = () => wbCtx.drawImage(img, 0, 0);
+      img.src = wbStore[boardId];
+    }
+    wbModal.classList.add('open');
+    wbModal.setAttribute('aria-hidden', 'false');
+  }
+  function closeWhiteboard() {
+    if (!wbModal || !wbCurrentBoard) return;
+    // Save to store + render mini onto the actual wall whiteboard
+    const data = wbCanvas.toDataURL('image/png');
+    wbStore[wbCurrentBoard] = data;
+    const imgEl = document.getElementById(`wb-img-${wbCurrentBoard}`);
+    if (imgEl) imgEl.setAttribute('href', data);
+    wbModal.classList.remove('open');
+    wbModal.setAttribute('aria-hidden', 'true');
+    wbCurrentBoard = null;
+  }
+
+  if (wbModal && wbCtx) {
+    // Color buttons
+    document.querySelectorAll('.wb-color').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.wb-color').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        wbColor = btn.dataset.color;
+        wbErasing = false;
+      });
+    });
+    const eraserBtn = document.getElementById('wb-eraser');
+    eraserBtn.addEventListener('click', () => {
+      wbErasing = !wbErasing;
+      eraserBtn.style.background = wbErasing ? '#3a302a' : '';
+    });
+    document.getElementById('wb-clear').addEventListener('click', () => {
+      wbCtx.fillStyle = '#e8f7ee';
+      wbCtx.fillRect(0, 0, wbCanvas.width, wbCanvas.height);
+    });
+    document.getElementById('wb-close').addEventListener('click', closeWhiteboard);
+    wbModal.addEventListener('click', (e) => { if (e.target === wbModal) closeWhiteboard(); });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && wbModal.classList.contains('open')) closeWhiteboard();
+    });
+
+    // Drawing
+    let drawing = false, lastX = 0, lastY = 0;
+    function canvasPt(e) {
+      const rect = wbCanvas.getBoundingClientRect();
+      const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+      const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+      return { x: cx * (wbCanvas.width / rect.width), y: cy * (wbCanvas.height / rect.height) };
+    }
+    function startDraw(e) {
+      e.preventDefault();
+      drawing = true;
+      const p = canvasPt(e);
+      lastX = p.x; lastY = p.y;
+      drawDot(p.x, p.y);
+    }
+    function drawDot(x, y) {
+      wbCtx.fillStyle = wbErasing ? '#e8f7ee' : wbColor;
+      wbCtx.beginPath();
+      wbCtx.arc(x, y, wbErasing ? 16 : 3.2, 0, Math.PI * 2);
+      wbCtx.fill();
+    }
+    function moveDraw(e) {
+      if (!drawing) return;
+      e.preventDefault();
+      const p = canvasPt(e);
+      wbCtx.strokeStyle = wbErasing ? '#e8f7ee' : wbColor;
+      wbCtx.lineWidth = wbErasing ? 32 : 5;
+      wbCtx.lineCap = 'round';
+      wbCtx.lineJoin = 'round';
+      wbCtx.beginPath();
+      wbCtx.moveTo(lastX, lastY);
+      wbCtx.lineTo(p.x, p.y);
+      wbCtx.stroke();
+      lastX = p.x; lastY = p.y;
+    }
+    function endDraw() { drawing = false; }
+    wbCanvas.addEventListener('mousedown', startDraw);
+    wbCanvas.addEventListener('mousemove', moveDraw);
+    window.addEventListener('mouseup', endDraw);
+    wbCanvas.addEventListener('touchstart', startDraw, { passive: false });
+    wbCanvas.addEventListener('touchmove', moveDraw, { passive: false });
+    window.addEventListener('touchend', endDraw);
+  }
+
+  // Wire up whiteboards
+  document.querySelectorAll('.whiteboard').forEach(wb => {
+    wb.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openWhiteboard(wb.dataset.board);
+    });
+  });
+
+  // Kick off with a small initial population
+  setTimeout(() => { createCharacter(); }, 500);
+  setTimeout(() => { createCharacter(); }, 1500);
+  setTimeout(() => { createCharacter(); }, 2800);
+  tick();
+
+  // When R is pressed and chairs get reset, free their occupancy markers so
+  // their riders walk away cleanly instead of teleporting with the chair.
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== 'r' && e.key !== 'R') return;
+    for (const ch of characters) {
+      if (ch.state === 'sitting' && ch.target) {
+        ch.target._occupiedBy = null;
+        ch.state = 'walking_out';
+        ch.exitTarget = { x: ch.door.x, y: ch.door.y };
+        ch._passedDoor = false;
+        ch._stuckTimer = 0;
+      }
+    }
+  });
 })();
 </script>
 </body>
